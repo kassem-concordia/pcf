@@ -315,10 +315,11 @@ func (policy *UeSmPolicyData) RemovePccRule(pccRuleId string, deletedSmPolicyDec
 				} //kassem
 				delete(policy.AltQosParaSets, qosId) //kassem
 			} //kassem
+			else {
+			return fmt.Errorf("can't find the pccRuleId[%s] in Session[%d]", pccRuleId, policy.PolicyContext.PduSessionId)
+			}
 		} //kassem
-	} else {
-		return fmt.Errorf("can't find the pccRuleId[%s] in Session[%d]", pccRuleId, policy.PolicyContext.PduSessionId)
-	}
+	
 
 	return nil
 }
