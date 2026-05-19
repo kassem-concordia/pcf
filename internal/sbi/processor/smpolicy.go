@@ -32,7 +32,7 @@ func (p *Processor) HandleCreateSmPolicyRequest(
 	request models.SmPolicyContextData,
 ) {
 	logger.SmPolicyLog.Infof("Handle CreateSmPolicy")
-
+	logger.SmPolicyLog.Infof("********************KASSEM******************")
 	var err error
 	queryStrength := 2 // 2: case-insensitive, 3: case-sensitive
 	logger.SmPolicyLog.Tracef("Handle Create SM Policy Request")
@@ -120,6 +120,7 @@ func (p *Processor) HandleCreateSmPolicyRequest(
 		PccRules:      make(map[string]*models.PccRule),
 		TraffContDecs: make(map[string]*models.TrafficControlData),
 	}
+	
 	SessRuleId := fmt.Sprintf("SessRuleId-%d", request.PduSessionId)
 	sessRule := models.SessionRule{
 		AuthSessAmbr: request.SubsSessAmbr,
@@ -185,6 +186,7 @@ func (p *Processor) HandleCreateSmPolicyRequest(
 		if decision.QosDecs == nil {
 			decision.QosDecs = make(map[string]*models.QosData)
 		}
+		
 		decision.QosDecs[qosData.QosId] = qosData
 	}
 
@@ -195,6 +197,7 @@ func (p *Processor) HandleCreateSmPolicyRequest(
 	}
 
 	pcc := util.CreateDefaultPccRules(smPolicyData.PccRuleIdGenerator)
+	
 	smPolicyData.PccRuleIdGenerator++
 
 	filterCharging := bson.M{
@@ -454,6 +457,13 @@ func (p *Processor) HandleCreateSmPolicyRequest(
 			}
 
 			pccRule := util.CreatePccRule(smPolicyData.PccRuleIdGenerator, precedence, nil, tiData.AfAppId)
+			// kassem  print full PccRule content
+			logger.SmPolicyLog.Infof("[kassem] PccRule created: ID=%s AppId=%s Precedence=%d",
+				pccRule.PccRuleId, pccRule.AppId, pccRule.Precedence)
+			logger.SmPolicyLog.Infof("[kassem] PccRule RefQosData=%v RefAltQosParams=%v RefTcData=%v RefChgData=%v",
+				pccRule.RefQosData, pccRule.RefAltQosParams, pccRule.RefTcData, pccRule.RefChgData)
+			logger.SmPolicyLog.Infof("[kassem] PccRule FlowInfos=%+v", pccRule.FlowInfos)
+
 			util.SetSmPolicyDecisionByTrafficInfluData(&decision, pccRule, tiData, chgData)
 			influenceID := getInfluenceID(tiData.ResUri)
 			if influenceID != "" {
@@ -492,6 +502,13 @@ func (p *Processor) HandleCreateSmPolicyRequest(
 	
 	applyQncAndAltQoS(smPolicyData, &decision)
 	
+	//kassem
+	logger.SmPolicyLog.Infof("[kassem] PccRules AFTER applyQncAndAltQoS: count=%d", len(decision.PccRules))
+	for ruleId, rule := range decision.PccRules {
+		logger.SmPolicyLog.Infof("[kassem]   PccRule[%s]: RefQosData=%v RefAltQosParams=%v",
+			ruleId, rule.RefQosData, rule.RefAltQosParams)
+	}
+
 	locationHeader := util.GetResourceUri(models.ServiceName_NPCF_SMPOLICYCONTROL, smPolicyID)
 	c.Header("Location", locationHeader)
 	logger.SmPolicyLog.Tracef("SMPolicy PduSessionId[%d] Create", request.PduSessionId)
@@ -1014,7 +1031,7 @@ func (p *Processor) HandleUpdateSmPolicyContextRequest(
 	}
 
 	applyQncAndAltQoS(smPolicy, smPolicyDecision) //kassem
-	
+
 	logger.SmPolicyLog.Tracef("SMPolicy smPolicyID[%s] Update", smPolicyId)
 	c.JSON(http.StatusOK, smPolicyDecision)
 }
