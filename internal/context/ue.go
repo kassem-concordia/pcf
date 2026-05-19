@@ -303,14 +303,14 @@ func (policy *UeSmPolicyData) RemovePccRule(pccRuleId string, deletedSmPolicyDec
 				delete(policy.InfluenceDataToPccRule, influenceID)
 			}
 		}
-		// Remove alt QosData entries from QosDecs and clean up session context. //kassem
-		for _, qosId := range rule.RefQosData { //kassem
-			if altIds, ok := policy.AltQosParaSets[qosId]; ok { //kassem
-				for _, altId := range altIds { //kassem
-					delete(decision.QosDecs, altId) //kassem
-				} //kassem
-				delete(policy.AltQosParaSets, qosId) //kassem
-			} //kassem
+		// Remove alt QosData entries from QosDecs and clean up session context.kassem
+		for _, qosId := range rule.RefQosData { 
+			if altIds, ok := policy.AltQosParaSets[qosId]; ok { 
+				for _, altId := range altIds { 
+					delete(decision.QosDecs, altId) 
+				} 
+				delete(policy.AltQosParaSets, qosId) 
+			} 
 		} //kassem
 	} else {
 		return fmt.Errorf("can't find the pccRuleId[%s] in Session[%d]", pccRuleId, policy.PolicyContext.PduSessionId)
