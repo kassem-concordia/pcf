@@ -484,6 +484,14 @@ func (p *Processor) HandleCreateSmPolicyRequest(
 		smPolicyData.BsfBindingId = bindingId
 		logger.SmPolicyLog.Infof("Successfully registered PCF binding in BSF with ID: %s", bindingId)
 	}
+
+	smPolicyData.Qnc = true //kassem
+	logger.SmPolicyLog.Infof(      //kassem
+		"[QNC] Unconditionally enabled for UE[%s] PDU Session[%d]: Qnc=true on all GBR flows", 
+		request.Supi, request.PduSessionId)
+	
+	applyQncAndAltQoS(smPolicyData, &decision)
+	
 	locationHeader := util.GetResourceUri(models.ServiceName_NPCF_SMPOLICYCONTROL, smPolicyID)
 	c.Header("Location", locationHeader)
 	logger.SmPolicyLog.Tracef("SMPolicy PduSessionId[%d] Create", request.PduSessionId)
@@ -1005,6 +1013,8 @@ func (p *Processor) HandleUpdateSmPolicyContextRequest(
 		}
 	}
 
+	applyQncAndAltQoS(smPolicy, smPolicyDecision) //kassem
+	
 	logger.SmPolicyLog.Tracef("SMPolicy smPolicyID[%s] Update", smPolicyId)
 	c.JSON(http.StatusOK, smPolicyDecision)
 }

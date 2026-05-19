@@ -102,6 +102,17 @@ type UeSmPolicyData struct {
 	SubscriptionID         string
 	// BSF Integration
 	BsfBindingId string
+
+	Qnc bool //kassem
+	AltQosParaSets map[string][]string //kassem
+}
+
+type AltQosParams struct { //kassem
+	GbrUl string
+	GbrDl string
+	MaxbrUl string
+	MaxbrDl string
+	PriorityLevel int32
 }
 
 // NewUeAMPolicyData returns created UeAMPolicyData data and insert this data to Ue.AMPolicyData with assolId as key
@@ -167,6 +178,8 @@ func (ue *UeContext) NewUeSmPolicyData(
 	data.ChargingIdGenerator = 1
 
 	data.PcfUe = ue
+	data.Qnc = true //kassem
+	data.AltQosParaSets = make(map[string][]string) //kassem
 	ue.SmPolicyData[key] = &data
 	data.InfluenceDataToPccRule = make(map[string]string)
 	return &data
@@ -293,6 +306,17 @@ func (policy *UeSmPolicyData) RemovePccRule(pccRuleId string, deletedSmPolicyDec
 	} else {
 		return fmt.Errorf("can't find the pccRuleId[%s] in Session[%d]", pccRuleId, policy.PolicyContext.PduSessionId)
 	}
+
+	// Remove alt QosData entries from QosDecs and clean up session context. kassem
+		for _, qosId := range rule.RefQosData { 
+			if altIds, ok := policy.AltQosParaSets[qosId]; ok { 
+				for _, altId := range altIds { 
+					delete(decision.QosDecs, altId) 
+				} 
+				delete(policy.AltQosParaSets, qosId) 
+			} 
+		} //kassem
+
 	return nil
 }
 
