@@ -120,7 +120,7 @@ func (p *Processor) HandleCreateSmPolicyRequest(
 		PccRules:      make(map[string]*models.PccRule),
 		TraffContDecs: make(map[string]*models.TrafficControlData),
 	}
-	
+
 	SessRuleId := fmt.Sprintf("SessRuleId-%d", request.PduSessionId)
 	sessRule := models.SessionRule{
 		AuthSessAmbr: request.SubsSessAmbr,
@@ -186,7 +186,7 @@ func (p *Processor) HandleCreateSmPolicyRequest(
 		if decision.QosDecs == nil {
 			decision.QosDecs = make(map[string]*models.QosData)
 		}
-		
+
 		decision.QosDecs[qosData.QosId] = qosData
 	}
 
@@ -197,7 +197,7 @@ func (p *Processor) HandleCreateSmPolicyRequest(
 	}
 
 	pcc := util.CreateDefaultPccRules(smPolicyData.PccRuleIdGenerator)
-	
+
 	smPolicyData.PccRuleIdGenerator++
 
 	filterCharging := bson.M{
@@ -495,13 +495,13 @@ func (p *Processor) HandleCreateSmPolicyRequest(
 		logger.SmPolicyLog.Infof("Successfully registered PCF binding in BSF with ID: %s", bindingId)
 	}
 
-	smPolicyData.Qnc = true //kassem
-	logger.SmPolicyLog.Infof(      //kassem
-		"[QNC] Unconditionally enabled for UE[%s] PDU Session[%d]: Qnc=true on all GBR flows", 
+	smPolicyData.Qnc = true   //kassem
+	logger.SmPolicyLog.Infof( //kassem
+		"[QNC] Unconditionally enabled for UE[%s] PDU Session[%d]: Qnc=true on all GBR flows",
 		request.Supi, request.PduSessionId)
-	
+
 	applyQncAndAltQoS(smPolicyData, &decision)
-	
+
 	//kassem
 	logger.SmPolicyLog.Infof("[kassem] PccRules AFTER applyQncAndAltQoS: count=%d", len(decision.PccRules))
 	for ruleId, rule := range decision.PccRules {
@@ -1030,7 +1030,7 @@ func (p *Processor) HandleUpdateSmPolicyContextRequest(
 		}
 	}
 
-	applyQncAndAltQoS(smPolicy, smPolicyDecision) //kassem
+	//applyQncAndAltQoS(smPolicy, smPolicyDecision) //kassem pcf crash
 
 	logger.SmPolicyLog.Tracef("SMPolicy smPolicyID[%s] Update", smPolicyId)
 	c.JSON(http.StatusOK, smPolicyDecision)
