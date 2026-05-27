@@ -650,6 +650,15 @@ func (p *Processor) HandleUpdateSmPolicyContextRequest(
 		c.JSON(int(problemDetail.Status), problemDetail)
 		return
 	}
+
+	for _, trigger := range request.RepPolicyCtrlReqTriggers { //kassem
+		if trigger == models.PolicyControlRequestTrigger_QOS_NOTIF { //kassem
+			logger.SmPolicyLog.Infof("[QNC] Black-hole QOS_NOTIF for policy[%s]", smPolicyId) //kassem
+			c.JSON(http.StatusOK, ue.SmPolicyData[smPolicyId].PolicyDecision)                 //kassem
+			return                                                                            //kassem
+		} //kassem
+	} //kassem
+
 	smPolicy := ue.SmPolicyData[smPolicyId]
 	smPolicyDecision := smPolicy.PolicyDecision
 	smPolicyContext := smPolicy.PolicyContext
